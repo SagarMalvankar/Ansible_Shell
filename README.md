@@ -15,4 +15,5 @@ b) It will generate output or status of service in text file in central server o
 
 Check output on browser using public IP address
 
-![image](https://user-images.githubusercontent.com/94777300/144801783-475625ad-7af1-4a0a-9ede-13afff7579d5.png)
+![image](https://user-images.githubusercontent.com/94777300/144804187-c4c40070-52a1-4329-9bc7-47e89516bfcf.png)
+
