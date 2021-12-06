@@ -1,0 +1,42 @@
+---
+- hosts: test
+  serial: 1
+  become: true
+  vars:
+   - httpd_status: string
+   - status: need
+  tasks:
+   - name: Install Packages required to start apache
+     yum:
+      name: httpd
+      state: latest
+     register: yum_status
+     ignore_errors: true
+   - shell: if rpm -q httpd > /dev/null ; then echo "Installation_done" ; else echo "Installation_not done"; fi
+     when: yum_status.rc == 0
+     register: yum_status1
+   - name: Copy apache index.html file
+     copy:
+      src: index.html
+      dest: /var/www/html/
+      owner: root
+      group: root
+      mode: '0755'
+   - name: set selinux to permissive for testing purpose
+     shell: setenforce 0
+   - name: check if selinux status
+     shell: if [ `getenforce` == "Permissive" ]; then echo "permissive"; else echo "Need_to_check";fi
+     register: status
+   - name: check if selinux is permissive then restart httpd service
+     service:
+      name: httpd
+      state: restarted
+     when: status.stdout == "permissive"
+     ignore_errors: true
+   - name: check if service is running or not
+     shell: if ps -ef | grep -i httpd | grep -v grep > /dev/null ; then echo "Process_is_running";else echo "Process_not_running";fi
+     register: httpd_status
+   - local_action: lineinfile line="{{ inventory_hostname }} , {{ status.stdout }}, {{ yum_status1.stdout }} , {{ httpd_status.stdout }}" path="/tmp/apachelogs.txt"
+       
+
+
